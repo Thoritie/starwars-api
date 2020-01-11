@@ -46,7 +46,7 @@ class PeopleListApiView(APIView):
 
         homeworld = Planet.objects.first()
 
-        People.objects.create(
+        person = People.objects.create(
             name=data['name'],
             height=data['height'],
             mass=data['mass'],
