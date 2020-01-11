@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from core.models import People, Planet
+from core.serializers import PeopleSerializers
 
 
 class PeopleListView(TemplateView):
@@ -32,12 +33,10 @@ class PeopleListApiView(APIView):
 
         people_list = []
         for people in  peoples:
-            people = {
-                'name': people.name,
-                'gender': people.gender,
-                'homeworld': people.homeworld.name
-            }
-            people_list.append(people)
+            serializer = PeopleSerializers(people)
+            person = serializer.data
+
+            people_list.append(person)
 
         return Response(people_list)
 
@@ -46,20 +45,8 @@ class PeopleListApiView(APIView):
 
         homeworld = Planet.objects.first()
 
-        person = People.objects.create(
-            name=data['name'],
-            height=data['height'],
-            mass=data['mass'],
-            hair_color=data['hair_color'],
-            skin_color=data['skin_color'],
-            eye_color=data['eye_color'],
-            gender=data['gender'],
-            homeworld=homeworld
-        )
+        serializer = PeopleSerializers(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-        return_person = {
-            'name': person.name,
-            'gender': person.gender,
-            'homeworld': person.homeworld.name
-        }
-        return Response(return_person)
+        return Response(serializer.data)
